@@ -1,0 +1,19 @@
+{
+  "name": "bhaka-backend",
+  "version": "0.0.1",
+  "description": "Backend of Bhaka Music Streaming using Express",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "express": "^4.18.1",
+    "http-errors": "^2.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.16",
+    "prettier": "2.6.2"
+  }
+}
