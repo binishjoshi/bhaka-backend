@@ -1,16 +1,15 @@
-const { validationResult } = require('express-validator');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const createError = require('http-errors');
-
-const User = require('../models/user');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { validationResult } = require('express-validator');
+const ArtistAccount = require('../models/artistAccount');
 
 const { SECRET_KEY } = require('../env');
 
 const signup = async (req, res, next) => {
   const errors = validationResult(req);
 
-  const { username, email, password, profilePicture } = req.body;
+  const { username, email, password } = req.body;
 
   // check for validation error from validation check
   if (!errors.isEmpty()) {
@@ -35,14 +34,11 @@ const signup = async (req, res, next) => {
     return next(createError(500, 'Could not signup'));
   }
 
-  const createdUser = User.build({
+  const createdUser = ArtistAccount.build({
     username,
     email,
     password: hashedPassword,
-    profilePicture,
-    liked: [],
-    createdPlaylists: [],
-    followedPlaylists: [],
+    artists: [],
   });
 
   try {
@@ -73,6 +69,7 @@ const signup = async (req, res, next) => {
   });
 };
 
+// ought to write a signin and signup hook for both user and artist account, let's just make it work for now
 const signin = async (req, res, next) => {
   const errors = validationResult(req);
 
@@ -86,7 +83,7 @@ const signin = async (req, res, next) => {
 
   try {
     // check if the database contains a user with provided username
-    identify = await User.findOne({ where: { username } });
+    identify = await ArtistAccount.findOne({ where: { username } });
   } catch (error) {
     // failed to query
     return next(createError(500, 'Signin failed'));
@@ -117,7 +114,6 @@ const signin = async (req, res, next) => {
   try {
     token = jwt.sign(
       {
-        id: identify.id,
         username: identify.username,
         email: identify.email,
       },

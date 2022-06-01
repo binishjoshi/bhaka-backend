@@ -16,6 +16,16 @@ app.listen(5000, () => {
 
 const usersRoutes = require('./routes/users');
 app.use('/api/users', usersRoutes);
+const songsRoutes = require('./routes/songs');
+app.use('/api/songs', songsRoutes);
+const playlistsRoutes = require('./routes/playlists');
+app.use('/api/playlists', playlistsRoutes);
+const artistAccountsRoutes = require('./routes/artistAccounts');
+app.use('/api/manager', artistAccountsRoutes);
+const artistRoutes = require('./routes/artists');
+app.use('/api/artist', artistRoutes);
+const albumRoutes = require('./routes/albums');
+app.use('/api/albums', albumRoutes);
 
 app.use((req, res, next) => {
   res.json({ message: 'Could not find route' });

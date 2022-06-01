@@ -21,7 +21,7 @@ const initializeDb = async () => {
   try {
     await sequelize.sync();
   } catch (error) {
-    console.log('Error syncing: ', error.message);
+    console.log('\x1b[31m%s\x1b[0m', `Error syncing: ${error.message}`);
   }
 };
 
