@@ -31,6 +31,7 @@ const create = async (req, res, next) => {
         type,
         songs: [],
         artist,
+        coverArt: req.files.coverImage[0].path,
       },
       { transaction: transac }
     );
@@ -38,7 +39,7 @@ const create = async (req, res, next) => {
     // create entry for all songs in the album
     for (let i = 0; i < songArray.length; i++) {
       let songMd5;
-      const buf = fs.readFileSync(req.files[i].path);
+      const buf = fs.readFileSync(req.files.songFiles[i].path);
       songMd5 = md5(buf);
 
       const newSong = await Song.create(
@@ -49,6 +50,7 @@ const create = async (req, res, next) => {
           genre: songArray[i].genre,
           album: newAlbum.id,
           hash: songMd5,
+          filePath: req.files.songFiles[i].path,
         },
         { transaction: transac }
       );

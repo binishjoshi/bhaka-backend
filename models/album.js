@@ -28,6 +28,9 @@ const Album = sequelize.define('Album', {
     type: DataTypes.UUID,
     allowNull: false,
   },
+  coverArt: {
+    type: DataTypes.CHAR,
+  }
 });
 
 module.exports = Album;
