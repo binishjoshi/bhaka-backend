@@ -1,6 +1,7 @@
-const createError = require('http-errors');
+const fs = require('fs');
+const md5 = require('md5');
+
 const validationCheck = require('../hooks/validationCheck');
-const jwt = require('jsonwebtoken');
 
 const { sequelize } = require('../initDb');
 
@@ -13,6 +14,8 @@ const create = async (req, res, next) => {
   validationCheck(req, next);
 
   const { title, songs, type, artist } = req.body;
+
+  let songArray = JSON.parse(songs);
 
   authorizeArtistAccount(req, next);
 
@@ -33,14 +36,19 @@ const create = async (req, res, next) => {
     );
 
     // create entry for all songs in the album
-    for (let i = 0; i < songs.length; i++) {
+    for (let i = 0; i < songArray.length; i++) {
+      let songMd5;
+      const buf = fs.readFileSync(req.files[i].path);
+      songMd5 = md5(buf);
+
       const newSong = await Song.create(
         {
-          title: songs[i].title,
+          title: songArray[i].title,
           artist: artist,
-          featuredArtist: songs[i].featuredArtist,
-          genre: songs[i].genre,
+          featuredArtist: songArray[i].featuredArtist,
+          genre: songArray[i].genre,
           album: newAlbum.id,
+          hash: songMd5,
         },
         { transaction: transac }
       );
