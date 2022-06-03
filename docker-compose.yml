@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  app:
+    image: node:17
+    command: sh -c "yarn install && yarn start"
+    ports:
+      - 5000:5000
+    working_dir: /app
+    volumes:
+      - ./:/app
+    depends_on: 
+      - postgres
+  
+  postgres:
+    image: postgres:14.3-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - bhaka-db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: 
+      POSTGRES_DB: 
+      POSTGRES_PASSWORD: 
+      PGDATA: /var/lib/postgresql/data/pgdata
+
+volumes:
+  bhaka-db-data:
