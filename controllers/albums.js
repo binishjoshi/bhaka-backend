@@ -9,6 +9,7 @@ const Album = require('../models/album');
 const Song = require('../models/song');
 
 const authorizeArtistAccount = require('../hooks/authorizeArtistAccount');
+const createError = require('http-errors');
 
 const create = async (req, res, next) => {
   validationCheck(req, next);
@@ -78,4 +79,55 @@ const create = async (req, res, next) => {
   }
 };
 
+const getAlbumById = async (req, res, next) => {
+  const albumId = req.params.albumId;
+
+  let album;
+
+  try {
+    album = await Album.findOne({ where: { id: albumId } });
+  } catch (error) {
+    return next(createError(500, `Album fetch failed: ${error.message}`));
+  }
+
+  if (album === null) {
+    return next(createError(404, 'No album found for given album ID'));
+  }
+
+  for (let key in album.dataValues) {
+    if (typeof album.dataValues[key] === 'string') {
+      album.dataValues[key] = album.dataValues[key].trimEnd();
+    }
+  }
+
+  res.json(album.dataValues);
+};
+
+const getAlbumsByArtistId = async (req, res, next) => {
+  const artistId = req.params.artistId;
+
+  let albums;
+  try {
+    albums = await Album.findAll({ where: { artist: artistId } });
+  } catch (error) {
+    return next(createError(500, error.message));
+  }
+
+  if (albums.length === 0) {
+    return next(createError(404, 'No albums found for given artist ID'));
+  }
+
+  albums.forEach((album) => {
+    for (let key in album.dataValues) {
+      if (typeof album.dataValues[key] === 'string') {
+        album.dataValues[key] = album.dataValues[key].trimEnd();
+      }
+    }
+  });
+
+  res.json(albums);
+};
+
 exports.create = create;
+exports.getAlbumById = getAlbumById;
+exports.getAlbumsByArtistId = getAlbumsByArtistId;

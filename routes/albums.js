@@ -19,4 +19,8 @@ router.post(
   albumsControllers.create
 );
 
+router.get('/:albumId', albumsControllers.getAlbumById);
+
+router.get('/artist/:artistId', albumsControllers.getAlbumsByArtistId);
+
 module.exports = router;

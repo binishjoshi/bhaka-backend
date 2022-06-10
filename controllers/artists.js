@@ -74,4 +74,29 @@ const create = async (req, res, next) => {
   }
 };
 
+const get = async (req, res, next) => {
+  const artistId = req.params.artistId;
+
+  let artist;
+
+  try {
+    artist = await Artist.findOne({ where: { id: artistId } });
+  } catch (error) {
+    return next(createError(500, `Aritst fetch failed: ${error.message}`));
+  }
+
+  if (artist === null) {
+    return next(createError(404, `Artist not found`));
+  }
+
+  for (let key in artist.dataValues) {
+    if (typeof artist.dataValues[key] === 'string') {
+      artist.dataValues[key] = artist.dataValues[key].trimEnd();
+    }
+  }
+
+  res.json(artist);
+};
+
 exports.create = create;
+exports.get = get;

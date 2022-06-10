@@ -15,4 +15,6 @@ router.post(
   artistsControllers.create
 );
 
+router.get('/:artistId', artistsControllers.get);
+
 module.exports = router;
