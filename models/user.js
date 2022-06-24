@@ -38,6 +38,10 @@ const User = sequelize.define('User', {
     type: DataTypes.ARRAY(DataTypes.CHAR),
     allowNull: true,
   },
+  preference: {
+    type: DataTypes.CHAR(4),
+    defaultValue: 'opus',
+  }
 });
 
 module.exports = User;
