@@ -16,6 +16,13 @@ const getSongMetadata = async (req, res, next) => {
     return next(createError(500, 'Error getting songs metadata'));
   }
 
+  const findFileSize = (filePath) => {
+    if (!filePath) return 'NA';
+    let fullPath = path.join(process.cwd(), filePath);
+    fullPath = fullPath.replace(/ /g, '');
+    return fs.statSync(fullPath).size;
+  };
+
   res.json({
     title: song.title,
     duration: song.duration,
@@ -25,13 +32,18 @@ const getSongMetadata = async (req, res, next) => {
     album: song.album,
     release: song.release,
     playCount: song.playCount,
-    likes: song.likedBy.length,
+    likes: !!song.likedBy ? song.likedBy.length : 0,
     coverArt: song.coverArt,
+    songSize: findFileSize(song.filePath),
+    songSizeLossy: findFileSize(song.filePathLossy),
   });
 };
 
 const stream = async (req, res, next) => {
-  console.log('\x1b[33m%s\x1b[0m', `Gotta optimize so that there aren't multiple request to the database`);
+  console.log(
+    '\x1b[33m%s\x1b[0m',
+    `Gotta optimize so that there aren't multiple request to the database`
+  );
   const range = req.headers.range;
   if (!range) {
     return next(createError(416, 'Requires range header'));
@@ -49,8 +61,7 @@ const stream = async (req, res, next) => {
     return next(createError(404, 'Requested song not found'));
   }
 
-
-  let songPath = path.join(process.cwd(), song.filePath)
+  let songPath = path.join(process.cwd(), song.filePath);
   songPath = songPath.replace(/ /g, '');
   const songSize = fs.statSync(songPath).size;
 

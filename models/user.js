@@ -41,7 +41,7 @@ const User = sequelize.define('User', {
   preference: {
     type: DataTypes.CHAR(4),
     defaultValue: 'opus',
-  }
+  },
 });
 
 module.exports = User;
