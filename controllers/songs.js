@@ -3,6 +3,8 @@ const fs = require('fs');
 const process = require('node:process');
 const path = require('node:path');
 
+const { Op } = require('sequelize');
+
 const Song = require('../models/song');
 
 const getSongMetadata = async (req, res, next) => {
@@ -83,5 +85,28 @@ const stream = async (req, res, next) => {
   audioStream.pipe(res);
 };
 
+const search = async (req, res, next) => {
+  const { searchQuery } = req.body;
+
+  let songs;
+
+  try {
+    songs = await Song.findAll({
+      where: {
+        title: {
+          [Op.iLike]: '%' + searchQuery + '%',
+        },
+      },
+    });
+  } catch (error) {
+    return next(createError(500, 'Error searching'));
+  }
+
+  res.json({
+    songs: songs,
+  });
+};
+
 exports.getSongMetadata = getSongMetadata;
+exports.search = search;
 exports.stream = stream;
