@@ -7,12 +7,12 @@ const songsControllers = require('../controllers/songs');
 
 router.get('/:songId', songsControllers.getSongMetadata);
 
-router.post('/search/', songsControllers.search);
-
-router.get(
-  '/stream/:songId',
+router.post(
+  '/search/',
   [check('searchQuery').not().isEmpty()],
-  songsControllers.stream
+  songsControllers.search
 );
+
+router.get('/stream/:songId', songsControllers.stream);
 
 module.exports = router;
