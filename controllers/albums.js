@@ -14,7 +14,7 @@ const createError = require('http-errors');
 const create = async (req, res, next) => {
   validationCheck(req, next);
 
-  const { title, songs, type, artist } = req.body;
+  const { title, songs, type, artist, year } = req.body;
 
   let songArray = JSON.parse(songs);
 
@@ -33,6 +33,7 @@ const create = async (req, res, next) => {
         songs: [],
         artist,
         coverArt: req.files.coverImage[0].path,
+        year,
       },
       { transaction: transac }
     );
@@ -76,6 +77,7 @@ const create = async (req, res, next) => {
   } catch (error) {
     console.log(error);
     await transac.rollback();
+    return next(createError(500, 'Album creation failed'));
   }
 };
 
