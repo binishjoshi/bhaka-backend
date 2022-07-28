@@ -31,6 +31,10 @@ const Album = sequelize.define('Album', {
   coverArt: {
     type: DataTypes.CHAR,
   },
+  year: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  }
 });
 
 module.exports = Album;
