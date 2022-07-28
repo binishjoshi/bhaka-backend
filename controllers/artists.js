@@ -38,7 +38,7 @@ const create = async (req, res, next) => {
     const artist = await Artist.create(
       {
         name,
-        picture,
+        picture: req.file.path,
         description,
       },
       { transaction: transac }
@@ -68,9 +68,11 @@ const create = async (req, res, next) => {
     );
 
     await transac.commit();
-    res.json({ name: name });
+    res.json({ name: name, picture: req.file.path, description: description });
   } catch (error) {
+    console.log(error);
     await transac.rollback();
+    return next(createError(500, 'Artist creation failed'));
   }
 };
 

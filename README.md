@@ -21,4 +21,5 @@ Back-end code for Bhaka Music Streaming (3rd year project) written in JavaScript
    ```
 
 ### 2. API Endpoints
+
 ...

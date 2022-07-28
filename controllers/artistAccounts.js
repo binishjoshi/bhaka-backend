@@ -114,6 +114,7 @@ const signin = async (req, res, next) => {
   try {
     token = jwt.sign(
       {
+        id: identify.id,
         username: identify.username,
         email: identify.email,
       },

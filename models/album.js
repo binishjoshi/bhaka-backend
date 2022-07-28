@@ -34,7 +34,7 @@ const Album = sequelize.define('Album', {
   year: {
     type: DataTypes.INTEGER,
     allowNull: false,
-  }
+  },
 });
 
 module.exports = Album;
