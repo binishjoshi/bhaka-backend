@@ -2,8 +2,8 @@ version: '3.7'
 
 services:
   app:
-    image: node:17
-    command: sh -c "yarn install && yarn start"
+    image: node:16.16.0-alpine3.15
+    command: sh -c "apk add opus-tools && yarn install && yarn start"
     ports:
       - 5000:5000
     working_dir: /app
