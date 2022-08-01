@@ -37,6 +37,9 @@ const artistRoutes = require('./routes/artists');
 app.use('/api/artists', artistRoutes);
 const albumRoutes = require('./routes/albums');
 app.use('/api/albums', albumRoutes);
+const imageRoutes = require('./routes/images');
+app.use('/uploads/images', imageRoutes);
+
 
 app.use((req, res, next) => {
   res.json({ message: 'Could not find route' });
