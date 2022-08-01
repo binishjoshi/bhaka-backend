@@ -5,6 +5,8 @@ const path = require('node:path');
 
 const { Op } = require('sequelize');
 
+const Album = require('../models/album');
+const Artist = require('../models/artist');
 const Song = require('../models/song');
 
 const getSongMetadata = async (req, res, next) => {
@@ -102,9 +104,45 @@ const search = async (req, res, next) => {
     return next(createError(500, 'Error searching'));
   }
 
-  res.json({
-    songs: songs,
-  });
+  let searchResult = [];
+
+  for (let i = 0; i < songs.length; i++) {
+    let artistName;
+    let albumCover;
+
+    try {
+      let artist = await Artist.findOne({
+        where: {
+          id: songs[i].artist.trimEnd(),
+        },
+      });
+      artistName = artist.name;
+    } catch (error) {
+      console.log(error.message);
+      return next(createError(500, 'Error searching'));
+    }
+
+    try {
+      let album = await Album.findOne({
+        where: {
+          id: songs[i].album.trimEnd(),
+        },
+      });
+      albumCover = album.coverArt;
+    } catch (error) {
+      console.log(error.message);
+      return next(createError(500, 'Error searching'));
+    }
+
+    searchResult.push({
+      id: songs[i].id,
+      title: songs[i].title.trimEnd(),
+      artist: artistName.trimEnd(),
+      coverArt: albumCover.trimEnd(),
+    });
+  }
+
+  res.json(searchResult);
 };
 
 exports.getSongMetadata = getSongMetadata;
