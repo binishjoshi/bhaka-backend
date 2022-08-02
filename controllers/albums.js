@@ -1,4 +1,6 @@
 const fs = require('fs');
+const path = require('node:path');
+const { exec } = require('node:child_process');
 const md5 = require('md5');
 
 const validationCheck = require('../hooks/validationCheck');
@@ -44,6 +46,20 @@ const create = async (req, res, next) => {
       const buf = fs.readFileSync(req.files.songFiles[i].path);
       songMd5 = md5(buf);
 
+      const directoryPath = path.dirname(req.files.songFiles[i].path);
+      const extensionName = path.extname(req.files.songFiles[i].path);
+      const pathBaseName = path.basename(
+        req.files.songFiles[i].path,
+        extensionName
+      );
+
+      const lossyFilePath = path.join(directoryPath, pathBaseName + '.opus');
+
+      // transcode flac to opus at 128Kbps
+      exec(
+        `opusenc --bitrate 128 ${req.files.songFiles[i].path} ${lossyFilePath}`
+      );
+
       const newSong = await Song.create(
         {
           title: songArray[i].title,
@@ -53,6 +69,7 @@ const create = async (req, res, next) => {
           album: newAlbum.id,
           hash: songMd5,
           filePath: req.files.songFiles[i].path,
+          filePathLossy: lossyFilePath,
         },
         { transaction: transac }
       );
