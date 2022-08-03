@@ -8,6 +8,7 @@ const { Op } = require('sequelize');
 const Album = require('../models/album');
 const Artist = require('../models/artist');
 const Song = require('../models/song');
+const User = require('../models/user');
 
 const getSongMetadata = async (req, res, next) => {
   const songId = req.params.songId;
@@ -53,19 +54,43 @@ const stream = async (req, res, next) => {
     return next(createError(416, 'Requires range header'));
   }
   const songId = req.params.songId;
+  const userId = req.params.userId;
 
   let song;
+  let formatPreference;
+
+  // gotta add authentication sometime later
+  try {
+    let user = await User.findOne({
+      where: { id: userId },
+    });
+    formatPreference = user.preference;
+  } catch (error) {
+    console.log(error.message);
+    return next(createError(404, 'User not found'));
+  }
 
   try {
     song = await Song.findOne({
-      attributes: ['filePath'],
+      attributes: ['filePath', 'filePathLossy'],
       where: { id: songId },
     });
   } catch (error) {
+    return next(createError(404, 'Error streaming'));
+  }
+
+  if (song === null) {
     return next(createError(404, 'Requested song not found'));
   }
 
-  let songPath = path.join(process.cwd(), song.filePath);
+  let songPath, contentTypeHeader;
+  if (formatPreference === 'flac') {
+    songPath = path.join(process.cwd(), song.filePath);
+    contentTypeHeader = 'audio/flac';
+  } else {
+    songPath = path.join(process.cwd(), song.filePathLossy);
+    contentTypeHeader = 'audio/opus';
+  }
   songPath = songPath.replace(/ /g, '');
   const songSize = fs.statSync(songPath).size;
 
@@ -78,7 +103,7 @@ const stream = async (req, res, next) => {
     'Content-Range': `bytes ${start}-${end}/${songSize}`,
     'Accept-Ranges': 'bytes',
     'Content-Length': contentLength,
-    'Content-Type': 'audio/flac',
+    'Content-Type': contentTypeHeader,
   };
 
   res.writeHead(206, headers);

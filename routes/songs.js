@@ -13,6 +13,6 @@ router.post(
   songsControllers.search
 );
 
-router.get('/stream/:songId', songsControllers.stream);
+router.get('/stream/:songId/:userId', songsControllers.stream);
 
 module.exports = router;
