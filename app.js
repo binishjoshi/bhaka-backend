@@ -40,7 +40,6 @@ app.use('/api/albums', albumRoutes);
 const imageRoutes = require('./routes/images');
 app.use('/uploads/images', imageRoutes);
 
-
 app.use((req, res, next) => {
   res.json({ message: 'Could not find route' });
   return next(createError(404, 'Could not find route'));
