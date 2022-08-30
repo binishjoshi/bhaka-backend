@@ -18,8 +18,20 @@ const create = async (req, res, next) => {
 
   const { title, songs, type, artist, year } = req.body;
 
-  let songArray = JSON.parse(songs);
+  
+  let songArray;
+  try {
+    let jsonSongs = JSON.parse(songs);
+    songArray = jsonSongs.songs;
+  } catch (error) {
+    return next(createError(500, `Problem parsing song JSON: ${error.message}`))
+  }
 
+  if (songArray === undefined) {
+    return next(createError(500, 'Empty album'));
+  }
+  
+  console.log(songArray);
   authorizeArtistAccount(req, next);
 
   const transac = await sequelize.transaction();
