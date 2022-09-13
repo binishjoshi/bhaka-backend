@@ -21,4 +21,6 @@ router.post(
   usersControllers.signin
 );
 
+router.get('/check', usersControllers.checkUserAccount);
+
 module.exports = router;

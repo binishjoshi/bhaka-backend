@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const createError = require('http-errors');
 
+const ArtistAccount = require('../models/artistAccount');
 const User = require('../models/user');
 
 const { SECRET_KEY } = require('../env');
@@ -130,5 +131,32 @@ const signin = async (req, res, next) => {
   res.status(200).json({ token });
 };
 
+const checkUserAccount = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+
+    if (!token) {
+      return next(createError(401, 'Unauthorized'));
+    }
+
+    const decodedToken = jwt.verify(token, SECRET_KEY);
+
+    userAccount = await User.findOne({ where: { id: decodedToken.id } });
+    if (userAccount) {
+      res.status(200).json({ result: 'userAccount' });
+    }
+
+    const artistAccount = await ArtistAccount.findOne({
+      where: { id: decodedToken.id },
+    });
+    if (artistAccount) {
+      res.status(200).json({ result: 'artistAccount' });
+    }
+  } catch (error) {
+    return next(createError(500, 'Invalid token'));
+  }
+};
+
 exports.signup = signup;
 exports.signin = signin;
+exports.checkUserAccount = checkUserAccount;
