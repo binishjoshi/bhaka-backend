@@ -32,7 +32,7 @@ app.use('/api/songs', songsRoutes);
 const playlistsRoutes = require('./routes/playlists');
 app.use('/api/playlists', playlistsRoutes);
 const artistAccountsRoutes = require('./routes/artistAccounts');
-app.use('/api/managers', artistAccountsRoutes);
+app.use('/api/artist-accounts', artistAccountsRoutes);
 const artistRoutes = require('./routes/artists');
 app.use('/api/artists', artistRoutes);
 const albumRoutes = require('./routes/albums');
