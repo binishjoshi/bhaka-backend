@@ -21,4 +21,6 @@ router.post(
   artistAccountsController.signin
 );
 
+router.get('/artists', artistAccountsController.artists);
+
 module.exports = router;

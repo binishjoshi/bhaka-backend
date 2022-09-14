@@ -2,6 +2,9 @@ const createError = require('http-errors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
+
+const authorizeArtistAccount = require('../hooks/authorizeArtistAccount');
+
 const ArtistAccount = require('../models/artistAccount');
 
 const { SECRET_KEY } = require('../env');
@@ -127,5 +130,25 @@ const signin = async (req, res, next) => {
   res.status(200).json({ token });
 };
 
+const artists = async (req, res, next) => {
+  const { id } = authorizeArtistAccount(req, next);
+  let artists;
+  try {
+    artists = await ArtistAccount.findOne({
+      attributes: ['artists'],
+      where: {
+        id: id,
+      },
+    });
+  } catch (error) {
+    return next(createError(500, 'Server Error'));
+  }
+
+  res.json({
+    artists: artists.artists,
+  });
+};
+
 exports.signup = signup;
 exports.signin = signin;
+exports.artists = artists;
