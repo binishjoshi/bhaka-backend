@@ -6,6 +6,7 @@ const { validationResult } = require('express-validator');
 const authorizeArtistAccount = require('../hooks/authorizeArtistAccount');
 
 const ArtistAccount = require('../models/artistAccount');
+const Artist = require('../models/artist');
 
 const { SECRET_KEY } = require('../env');
 
@@ -132,20 +133,39 @@ const signin = async (req, res, next) => {
 
 const artists = async (req, res, next) => {
   const { id } = authorizeArtistAccount(req, next);
-  let artists;
+  let artistsIds;
+  let artistInfo = [];
   try {
-    artists = await ArtistAccount.findOne({
+    const { artists } = await ArtistAccount.findOne({
       attributes: ['artists'],
       where: {
         id: id,
       },
     });
+    artistsIds = artists;
   } catch (error) {
     return next(createError(500, 'Server Error'));
   }
 
+  for (let i = 0; i < artistsIds.length; i++) {
+    try {
+      const { name } = await Artist.findOne({
+        attributes: ['name'],
+        where: {
+          id: artistsIds[i],
+        },
+      });
+      artistInfo.push({
+        artistId: artistsIds[i],
+        artistName: name.trimEnd(),
+      });
+    } catch (error) {
+      return next(createError(500, 'Server Error'));
+    }
+  }
+
   res.json({
-    artists: artists.artists,
+    artists: artistInfo,
   });
 };
 
