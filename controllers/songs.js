@@ -132,8 +132,8 @@ const search = async (req, res, next) => {
   let searchResult = [];
 
   for (let i = 0; i < songs.length; i++) {
-    let artistName;
-    let albumCover;
+    let artistName, artistId;
+    let albumCover, albumId;
 
     try {
       let artist = await Artist.findOne({
@@ -142,6 +142,7 @@ const search = async (req, res, next) => {
         },
       });
       artistName = artist.name;
+      artistId = artist.id;
     } catch (error) {
       console.log(error.message);
       return next(createError(500, 'Error searching'));
@@ -154,6 +155,7 @@ const search = async (req, res, next) => {
         },
       });
       albumCover = album.coverArt;
+      albumId = album.id;
     } catch (error) {
       console.log(error.message);
       return next(createError(500, 'Error searching'));
@@ -163,7 +165,9 @@ const search = async (req, res, next) => {
       id: songs[i].id,
       title: songs[i].title.trimEnd(),
       artist: artistName.trimEnd(),
+      artistId: artistId.trimEnd(),
       coverArt: albumCover.trimEnd(),
+      albumId: albumId.trimEnd(),
     });
   }
 
