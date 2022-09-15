@@ -222,9 +222,9 @@ const streamAndroid = async (req, res, next) => {
   const songSize = fs.statSync(songPath).size;
 
   const start = Number(range.replace(/\D/g, ''));
-  const end = songSize-1;
+  const end = songSize - 1;
 
-  const contentLength = (end-start) +1 ;
+  const contentLength = end - start + 1;
   const headers = {
     'Content-Range': `bytes ${start}-${end}`,
     'Accept-Ranges': 'bytes',
@@ -233,11 +233,11 @@ const streamAndroid = async (req, res, next) => {
   };
 
   res.writeHead(206, headers);
-  const audioStream = fs.createReadStream(songPath, {start, end});
+  const audioStream = fs.createReadStream(songPath, { start, end });
   audioStream.pipe(res);
 };
 
 exports.getSongMetadata = getSongMetadata;
 exports.search = search;
 exports.stream = stream;
-exports.streamAndroid = streamAndroid
+exports.streamAndroid = streamAndroid;

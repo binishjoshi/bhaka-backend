@@ -68,7 +68,12 @@ const create = async (req, res, next) => {
     );
 
     await transac.commit();
-    res.json({ name: name, picture: req.file.path, description: description, artistId: artist.id });
+    res.json({
+      name: name,
+      picture: req.file.path,
+      description: description,
+      artistId: artist.id,
+    });
   } catch (error) {
     console.log(error);
     await transac.rollback();
