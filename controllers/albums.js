@@ -8,6 +8,7 @@ const validationCheck = require('../hooks/validationCheck');
 const { sequelize } = require('../initDb');
 
 const Album = require('../models/album');
+const Artist = require('../models/artist');
 const Song = require('../models/song');
 
 const authorizeArtistAccount = require('../hooks/authorizeArtistAccount');
@@ -126,13 +127,50 @@ const getAlbumById = async (req, res, next) => {
     return next(createError(404, 'No album found for given album ID'));
   }
 
-  for (let key in album.dataValues) {
-    if (typeof album.dataValues[key] === 'string') {
-      album.dataValues[key] = album.dataValues[key].trimEnd();
+  let songsArray = [];
+
+  for (let songId of album.songs) {
+    try {
+      const song = await Song.findOne({
+        attributes: ['title', 'duration'],
+        where: {
+          id: songId,
+        },
+      });
+      songsArray.push({
+        songId: songId,
+        songTitle: song.title.trimEnd(),
+        songDuration: song.duration,
+      });
+    } catch (error) {
+      return next(createError(500, 'Album fetch failed'));
     }
   }
 
-  res.json(album.dataValues);
+  let artistName;
+  try {
+    const artist = await Artist.findOne({
+      where: {
+        id: album.artist,
+      },
+    });
+    artistName = artist.name;
+  } catch (error) {
+    return next(createError(500, 'Album fetch failed'));
+  }
+
+  let responseData = {
+    id: album.id,
+    title: album.title.trimEnd(),
+    songs: songsArray,
+    type: album.type.trimEnd(),
+    artist: artistName.trimEnd(),
+    artistId: album.artist.trimEnd(),
+    coverImage: album.coverArt.trimEnd(),
+    year: album.year,
+  };
+
+  res.json(responseData);
 };
 
 const getAlbumsByArtistId = async (req, res, next) => {
