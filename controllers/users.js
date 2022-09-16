@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const createError = require('http-errors');
 
 const ArtistAccount = require('../models/artistAccount');
+const Playlist = require('../models/playlist');
 const User = require('../models/user');
 
 const { SECRET_KEY } = require('../env');
@@ -197,7 +198,68 @@ const get = async (req, res, next) => {
   res.json(user);
 };
 
+const getPlaylists = async (req, res, next) => {
+  let userId;
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    if (!token) {
+      return next(createError(401, 'Unauthorized'));
+    }
+    const decodedToken = jwt.verify(token, SECRET_KEY);
+    userId = decodedToken.id;
+  } catch (error) {
+    console.log(error);
+    return next(createError(401, 'Unauthorized'));
+  }
+
+  let user;
+
+  try {
+    user = await User.findOne({ where: { id: userId } });
+  } catch (error) {
+    return next(createError(500, `User fetch failed: ${error.message}`));
+  }
+
+  if (user === null) {
+    return next(createError(404, `User not found`));
+  }
+
+  for (let key in user.dataValues) {
+    if (typeof user.dataValues[key] === 'string') {
+      user.dataValues[key] = user.dataValues[key].trimEnd();
+    }
+  }
+
+  for (let i in user.createdPlaylists) {
+    user.createdPlaylists[i] = user.createdPlaylists[i].trimEnd();
+  }
+
+  let playlistData = [];
+
+  if (user.createdPlaylists.length !== 0) {
+    for (let playlistId of user.createdPlaylists) {
+      try {
+        const playlist = await Playlist.findOne({
+          where: {
+            id: playlistId,
+          },
+        });
+
+        playlistData.push({
+          id: playlistId,
+          name: playlist.name.trimEnd(),
+        });
+      } catch (error) {
+        next(createError(500, 'Error fetching playlists'));
+      }
+    }
+  }
+
+  res.json({ userPlaylists: playlistData });
+};
+
 exports.signup = signup;
 exports.signin = signin;
 exports.checkUserAccount = checkUserAccount;
 exports.get = get;
+exports.getPlaylists = getPlaylists;

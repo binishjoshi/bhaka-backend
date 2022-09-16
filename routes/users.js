@@ -23,5 +23,6 @@ router.post(
 
 router.get('/check', usersControllers.checkUserAccount);
 router.get('/', usersControllers.get);
+router.get('/playlists', usersControllers.getPlaylists);
 
 module.exports = router;
