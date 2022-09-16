@@ -51,6 +51,7 @@ const create = async (req, res, next) => {
         name,
         description,
         creator,
+        songs: [],
       },
       { transaction: transac }
     );
@@ -84,5 +85,50 @@ const create = async (req, res, next) => {
   }
 };
 
+const add = async (req, res, next) => {
+  validationCheck(req, next);
+
+  const { songId, playlistId } = req.body;
+
+  let creator;
+
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    if (!token) {
+      return next(createError(401, 'Unauthorized'));
+    }
+    const decodedToken = jwt.verify(token, SECRET_KEY);
+    creator = decodedToken.id;
+  } catch (error) {
+    console.log(error);
+    return next(createError(401, 'Unauthorized'));
+  }
+
+  try {
+    const playlist = await Playlist.findOne({
+      where: {
+        id: playlistId,
+      },
+    });
+
+    let playlistSongs = playlist.songs;
+    playlistSongs.push(songId);
+
+    await Playlist.update(
+      { songs: playlistSongs },
+      {
+        where: {
+          id: playlistId,
+        },
+      }
+    );
+    res.json({ message: 'Success' });
+  } catch (error) {
+    console.log(error);
+    next(createError(500, 'Error creating playlist'));
+  }
+};
+
 exports.create = create;
 exports.getPlaylist = getPlaylist;
+exports.add = add;

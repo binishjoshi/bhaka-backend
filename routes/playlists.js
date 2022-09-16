@@ -13,4 +13,10 @@ router.post(
   playlistsControllers.create
 );
 
+router.post(
+  '/add',
+  [check('songId').not().isEmpty(), check('playlistId').not().isEmpty()],
+  playlistsControllers.add
+);
+
 module.exports = router;
