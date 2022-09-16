@@ -157,6 +157,43 @@ const checkUserAccount = async (req, res, next) => {
   }
 };
 
+const get = async (req, res, next) => {
+  let userId;
+
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    if (!token) {
+      return next(createError(401, 'Unauthorized'));
+    }
+    const decodedToken = jwt.verify(token, SECRET_KEY);
+    userId =  decodedToken.id;
+  } catch (error) {
+    console.log(error);
+    return next(createError(401, 'Unauthorized'));
+  }
+
+  let user;
+
+  try {
+    user = await User.findOne({ where: { id: userId } });
+  } catch (error) {
+    return next(createError(500, `User fetch failed: ${error.message}`));
+  }
+
+  if (user === null) {
+    return next(createError(404, `User not found`));
+  }
+
+  for (let key in user.dataValues) {
+    if (typeof user.dataValues[key] === 'string') {
+      user.dataValues[key] = user.dataValues[key].trimEnd();
+    }
+  }
+
+  res.json(user);
+};
+
 exports.signup = signup;
 exports.signin = signin;
 exports.checkUserAccount = checkUserAccount;
+exports.get = get;

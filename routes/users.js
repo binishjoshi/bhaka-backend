@@ -22,5 +22,6 @@ router.post(
 );
 
 router.get('/check', usersControllers.checkUserAccount);
+router.get('/', usersControllers.get);
 
 module.exports = router;
