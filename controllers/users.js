@@ -166,7 +166,7 @@ const get = async (req, res, next) => {
       return next(createError(401, 'Unauthorized'));
     }
     const decodedToken = jwt.verify(token, SECRET_KEY);
-    userId =  decodedToken.id;
+    userId = decodedToken.id;
   } catch (error) {
     console.log(error);
     return next(createError(401, 'Unauthorized'));
@@ -188,6 +188,10 @@ const get = async (req, res, next) => {
     if (typeof user.dataValues[key] === 'string') {
       user.dataValues[key] = user.dataValues[key].trimEnd();
     }
+  }
+
+  for (let i in user.createdPlaylists) {
+    user.createdPlaylists[i] = user.createdPlaylists[i].trimEnd();
   }
 
   res.json(user);
