@@ -27,6 +27,8 @@ app.listen(5000, () => {
 
 const usersRoutes = require('./routes/users');
 app.use('/api/users', usersRoutes);
+const adminsRoutes = require('./routes/admins');
+app.use('/api/admins', adminsRoutes);
 const songsRoutes = require('./routes/songs');
 app.use('/api/songs', songsRoutes);
 const playlistsRoutes = require('./routes/playlists');
