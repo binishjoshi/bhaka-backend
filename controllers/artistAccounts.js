@@ -149,8 +149,8 @@ const artists = async (req, res, next) => {
 
   for (let i = 0; i < artistsIds.length; i++) {
     try {
-      const { name } = await Artist.findOne({
-        attributes: ['name'],
+      const { name, verified } = await Artist.findOne({
+        attributes: ['name', 'verified'],
         where: {
           id: artistsIds[i],
         },
@@ -158,6 +158,7 @@ const artists = async (req, res, next) => {
       artistInfo.push({
         artistId: artistsIds[i],
         artistName: name.trimEnd(),
+        verified: verified,
       });
     } catch (error) {
       return next(createError(500, 'Server Error'));
@@ -169,6 +170,45 @@ const artists = async (req, res, next) => {
   });
 };
 
+const requestArtistVerification = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(createError(422, 'Validation error'));
+  }
+
+  const { id } = authorizeArtistAccount(req, next);
+  const { artistId } = req.body;
+  let identify;
+
+  try {
+    identify = await ArtistAccount.findOne({
+      where: {
+        id: id,
+      },
+    });
+  } catch (error) {
+    return next(createError(500, 'Request failed'));
+  }
+
+  if (identify.artists.includes(artistId)) {
+    try {
+      await Artist.update(
+        {
+          requestArtistVerification: true,
+        },
+        {
+          where: {
+            id: artistId,
+          },
+        }
+      );
+    } catch (error) {
+      return next(createError(500, 'Request failed'));
+    }
+  }
+};
+
 exports.signup = signup;
 exports.signin = signin;
 exports.artists = artists;
+exports.requestArtistVerification = requestArtistVerification;

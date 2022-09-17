@@ -24,9 +24,14 @@ const Artist = sequelize.define('Artist', {
     type: DataTypes.ARRAY(DataTypes.UUID),
   },
   verified: {
-    type: DataTypes.CHAR,
+    type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: false, // |true|false|pending
+    defaultValue: false,
+  },
+  requestForVerification: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
   },
 });
 
