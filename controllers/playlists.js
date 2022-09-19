@@ -30,7 +30,7 @@ const getPlaylist = async (req, res, next) => {
       playlistArray.push({
         songId: songId,
         songTitle: song.title.trimEnd(),
-        songDuration: song.duration,
+        songDuration: song.durationInSeconds,
       });
     }
   } catch (error) {
