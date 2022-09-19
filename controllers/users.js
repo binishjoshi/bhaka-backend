@@ -73,6 +73,7 @@ const signup = async (req, res, next) => {
   res.status(201).json({
     token: token,
     id: createdUser.id,
+    preference: createdUser.preference,
   });
 };
 
@@ -130,7 +131,9 @@ const signin = async (req, res, next) => {
     return next(createError(500, 'Signin failed'));
   }
 
-  res.status(200).json({ token: token, id: identify.id });
+  res
+    .status(200)
+    .json({ token: token, id: identify.id, preference: identify.preference });
 };
 
 const checkUserAccount = async (req, res, next) => {
