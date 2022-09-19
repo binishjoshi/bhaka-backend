@@ -258,8 +258,31 @@ const getPlaylists = async (req, res, next) => {
   res.json({ userPlaylists: playlistData });
 };
 
+const updateUserPreference= async (req,res,next) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+
+    if (!token) {
+      return next(createError(401, 'Unauthorized'));
+    }
+
+    const decodedToken = jwt.verify(token, SECRET_KEY);
+
+    userAccount = await User.findOne({ where: { id: decodedToken.id } });
+    if (userAccount) {
+      userAccount.preference = req.body.preference;
+      await userAccount.save();
+      res.status(200).json({ result: userAccount });
+    }
+
+  } catch (error) {
+    return next(createError(500, 'Invalid token'));
+  }
+}
+
 exports.signup = signup;
 exports.signin = signin;
 exports.checkUserAccount = checkUserAccount;
 exports.get = get;
 exports.getPlaylists = getPlaylists;
+exports.updateUserPreference = updateUserPreference;
