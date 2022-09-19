@@ -24,5 +24,6 @@ router.post(
 router.get('/check', usersControllers.checkUserAccount);
 router.get('/', usersControllers.get);
 router.get('/playlists', usersControllers.getPlaylists);
+router.post('/pref',usersControllers.updateUserPreference);
 
 module.exports = router;
