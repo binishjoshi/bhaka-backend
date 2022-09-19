@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('node:path');
 const { exec } = require('node:child_process');
 const md5 = require('md5');
+const { getAudioDurationInSeconds } = require('get-audio-duration');
 
 const validationCheck = require('../hooks/validationCheck');
 
@@ -33,7 +34,6 @@ const create = async (req, res, next) => {
     return next(createError(500, 'Empty album'));
   }
 
-  console.log(songArray);
   authorizeArtistAccount(req, next);
 
   const transac = await sequelize.transaction();
@@ -67,6 +67,10 @@ const create = async (req, res, next) => {
         extensionName
       );
 
+      const songDuration = await getAudioDurationInSeconds(
+        req.files.songFiles[i].path
+      );
+
       const lossyFilePath = path.join(directoryPath, pathBaseName + '.opus');
 
       // transcode flac to opus at 128Kbps
@@ -78,6 +82,7 @@ const create = async (req, res, next) => {
         {
           title: songArray[i].title,
           artist: artist,
+          durationInSeconds: songDuration,
           featuredArtist: songArray[i].featuredArtist,
           genre: songArray[i].genre,
           album: newAlbum.id,
@@ -132,7 +137,7 @@ const getAlbumById = async (req, res, next) => {
   for (let songId of album.songs) {
     try {
       const song = await Song.findOne({
-        attributes: ['title', 'duration'],
+        attributes: ['title', 'durationInSeconds'],
         where: {
           id: songId,
         },
@@ -140,7 +145,7 @@ const getAlbumById = async (req, res, next) => {
       songsArray.push({
         songId: songId,
         songTitle: song.title.trimEnd(),
-        songDuration: song.duration,
+        songDuration: song.durationInSeconds,
       });
     } catch (error) {
       return next(createError(500, 'Album fetch failed'));

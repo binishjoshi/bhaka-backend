@@ -15,6 +15,9 @@ const Song = sequelize.define('Song', {
   duration: {
     type: DataTypes.TIME,
   },
+  durationInSeconds: {
+    type: DataTypes.FLOAT,
+  },
   artist: {
     type: DataTypes.CHAR,
     allowNull: false,

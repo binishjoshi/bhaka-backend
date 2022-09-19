@@ -20,7 +20,6 @@ const getPlaylist = async (req, res, next) => {
     playlist = await Playlist.findOne({ where: { id: playlistId } });
 
     for (const songId of playlist.songs) {
-      console.log(songId);
       const song = await Song.findOne({
         where: {
           id: songId,
@@ -42,6 +41,7 @@ const getPlaylist = async (req, res, next) => {
     id: playlistId,
     title: playlist.name.trimEnd(),
     songs: playlistArray,
+    durationInSeconds: playlist.durationInSeconds,
   });
 };
 
@@ -133,11 +133,20 @@ const add = async (req, res, next) => {
       },
     });
 
+    const song = await Song.findOne({
+      where: {
+        id: songId,
+      },
+    });
+
     let playlistSongs = playlist.songs;
     playlistSongs.push(songId);
 
     await Playlist.update(
-      { songs: playlistSongs },
+      {
+        songs: playlistSongs,
+        durationInSeconds: playlist.durationInSeconds + song.durationInSeconds,
+      },
       {
         where: {
           id: playlistId,

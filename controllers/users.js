@@ -98,7 +98,9 @@ const signin = async (req, res, next) => {
 
   // user with provided username doesn't exists
   if (!identify) {
-    return next(createError(401, `No user with username ${username}`));
+    return next(
+      createError(401, { message: `No user with username ${username}` })
+    );
   }
 
   // check if password is correct

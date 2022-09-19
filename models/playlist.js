@@ -16,6 +16,10 @@ const Playlist = sequelize.define('Playlist', {
   duration: {
     type: DataTypes.TIME,
   },
+  durationInSeconds: {
+    type: DataTypes.FLOAT,
+    defaultValue: 0,
+  },
   description: {
     type: DataTypes.TEXT,
     allowNull: false,
