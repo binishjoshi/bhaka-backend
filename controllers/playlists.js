@@ -39,6 +39,7 @@ const getPlaylist = async (req, res, next) => {
   }
 
   res.json({
+    id: playlistId,
     title: playlist.name.trimEnd(),
     songs: playlistArray,
   });
