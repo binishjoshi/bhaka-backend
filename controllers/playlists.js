@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { sequelize } = require('../initDb');
 
 const Playlist = require('../models/playlist');
+const Song = require('../models/song');
 
 const validationCheck = require('../hooks/validationCheck');
 const { SECRET_KEY } = require('../env');
@@ -13,14 +14,34 @@ const getPlaylist = async (req, res, next) => {
   const playlistId = req.params.playlistId;
 
   let playlist;
+  let playlistArray = [];
 
   try {
     playlist = await Playlist.findOne({ where: { id: playlistId } });
+
+    for (const songId of playlist.songs) {
+      console.log(songId);
+      const song = await Song.findOne({
+        where: {
+          id: songId,
+        },
+      });
+
+      playlistArray.push({
+        songId: songId,
+        songTitle: song.title.trimEnd(),
+        songDuration: song.duration,
+      });
+    }
   } catch (error) {
+    console.log(error);
     return next(createError(500, 'Playlist fetch failed'));
   }
 
-  res.json(playlist);
+  res.json({
+    title: playlist.name.trimEnd(),
+    songs: playlistArray,
+  });
 };
 
 const create = async (req, res, next) => {
